@@ -26,6 +26,26 @@ func (pc *ProductCreate) SetName(s string) *ProductCreate {
 	return pc
 }
 
+// SetPreviewURL sets the "preview_url" field.
+func (pc *ProductCreate) SetPreviewURL(s string) *ProductCreate {
+	pc.mutation.SetPreviewURL(s)
+	return pc
+}
+
+// SetNillablePreviewURL sets the "preview_url" field if the given value is not nil.
+func (pc *ProductCreate) SetNillablePreviewURL(s *string) *ProductCreate {
+	if s != nil {
+		pc.SetPreviewURL(*s)
+	}
+	return pc
+}
+
+// SetCategories sets the "categories" field.
+func (pc *ProductCreate) SetCategories(s []string) *ProductCreate {
+	pc.mutation.SetCategories(s)
+	return pc
+}
+
 // SetPrice sets the "price" field.
 func (pc *ProductCreate) SetPrice(f float64) *ProductCreate {
 	pc.mutation.SetPrice(f)
@@ -58,6 +78,7 @@ func (pc *ProductCreate) Mutation() *ProductMutation {
 
 // Save creates the Product in the database.
 func (pc *ProductCreate) Save(ctx context.Context) (*Product, error) {
+	pc.defaults()
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -83,6 +104,14 @@ func (pc *ProductCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *ProductCreate) defaults() {
+	if _, ok := pc.mutation.PreviewURL(); !ok {
+		v := product.DefaultPreviewURL
+		pc.mutation.SetPreviewURL(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProductCreate) check() error {
 	if _, ok := pc.mutation.Name(); !ok {
@@ -92,6 +121,17 @@ func (pc *ProductCreate) check() error {
 		if err := product.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.PreviewURL(); !ok {
+		return &ValidationError{Name: "preview_url", err: errors.New(`ent: missing required field "Product.preview_url"`)}
+	}
+	if v, ok := pc.mutation.PreviewURL(); ok {
+		if err := product.PreviewURLValidator(v); err != nil {
+			return &ValidationError{Name: "preview_url", err: fmt.Errorf(`ent: validator failed for field "Product.preview_url": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.Categories(); !ok {
+		return &ValidationError{Name: "categories", err: errors.New(`ent: missing required field "Product.categories"`)}
 	}
 	if _, ok := pc.mutation.Price(); !ok {
 		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Product.price"`)}
@@ -131,6 +171,14 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
+	if value, ok := pc.mutation.PreviewURL(); ok {
+		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
+		_node.PreviewURL = value
+	}
+	if value, ok := pc.mutation.Categories(); ok {
+		_spec.SetField(product.FieldCategories, field.TypeJSON, value)
+		_node.Categories = value
+	}
 	if value, ok := pc.mutation.Price(); ok {
 		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
 		_node.Price = value
@@ -169,6 +217,7 @@ func (pcb *ProductCreateBulk) Save(ctx context.Context) ([]*Product, error) {
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ProductMutation)
 				if !ok {

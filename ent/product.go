@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -19,6 +20,10 @@ type Product struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// PreviewURL holds the value of the "preview_url" field.
+	PreviewURL string `json:"preview_url,omitempty"`
+	// Categories holds the value of the "categories" field.
+	Categories []string `json:"categories,omitempty"`
 	// Price holds the value of the "price" field.
 	Price float64 `json:"price,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -55,11 +60,13 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case product.FieldCategories:
+			values[i] = new([]byte)
 		case product.FieldPrice:
 			values[i] = new(sql.NullFloat64)
 		case product.FieldID:
 			values[i] = new(sql.NullInt64)
-		case product.FieldName:
+		case product.FieldName, product.FieldPreviewURL:
 			values[i] = new(sql.NullString)
 		case product.ForeignKeys[0]: // user_products
 			values[i] = new(sql.NullInt64)
@@ -89,6 +96,20 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				pr.Name = value.String
+			}
+		case product.FieldPreviewURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field preview_url", values[i])
+			} else if value.Valid {
+				pr.PreviewURL = value.String
+			}
+		case product.FieldCategories:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field categories", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Categories); err != nil {
+					return fmt.Errorf("unmarshal field categories: %w", err)
+				}
 			}
 		case product.FieldPrice:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -146,6 +167,12 @@ func (pr *Product) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", pr.ID))
 	builder.WriteString("name=")
 	builder.WriteString(pr.Name)
+	builder.WriteString(", ")
+	builder.WriteString("preview_url=")
+	builder.WriteString(pr.PreviewURL)
+	builder.WriteString(", ")
+	builder.WriteString("categories=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Categories))
 	builder.WriteString(", ")
 	builder.WriteString("price=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Price))

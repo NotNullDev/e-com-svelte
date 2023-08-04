@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/notnulldev/e-com-svelte/ent/predicate"
 	"github.com/notnulldev/e-com-svelte/ent/product"
@@ -31,6 +32,32 @@ func (pu *ProductUpdate) Where(ps ...predicate.Product) *ProductUpdate {
 // SetName sets the "name" field.
 func (pu *ProductUpdate) SetName(s string) *ProductUpdate {
 	pu.mutation.SetName(s)
+	return pu
+}
+
+// SetPreviewURL sets the "preview_url" field.
+func (pu *ProductUpdate) SetPreviewURL(s string) *ProductUpdate {
+	pu.mutation.SetPreviewURL(s)
+	return pu
+}
+
+// SetNillablePreviewURL sets the "preview_url" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillablePreviewURL(s *string) *ProductUpdate {
+	if s != nil {
+		pu.SetPreviewURL(*s)
+	}
+	return pu
+}
+
+// SetCategories sets the "categories" field.
+func (pu *ProductUpdate) SetCategories(s []string) *ProductUpdate {
+	pu.mutation.SetCategories(s)
+	return pu
+}
+
+// AppendCategories appends s to the "categories" field.
+func (pu *ProductUpdate) AppendCategories(s []string) *ProductUpdate {
+	pu.mutation.AppendCategories(s)
 	return pu
 }
 
@@ -111,6 +138,11 @@ func (pu *ProductUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
 	}
+	if v, ok := pu.mutation.PreviewURL(); ok {
+		if err := product.PreviewURLValidator(v); err != nil {
+			return &ValidationError{Name: "preview_url", err: fmt.Errorf(`ent: validator failed for field "Product.preview_url": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.Price(); ok {
 		if err := product.PriceValidator(v); err != nil {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
@@ -133,6 +165,17 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.PreviewURL(); ok {
+		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Categories(); ok {
+		_spec.SetField(product.FieldCategories, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedCategories(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, product.FieldCategories, value)
+		})
 	}
 	if value, ok := pu.mutation.Price(); ok {
 		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
@@ -192,6 +235,32 @@ type ProductUpdateOne struct {
 // SetName sets the "name" field.
 func (puo *ProductUpdateOne) SetName(s string) *ProductUpdateOne {
 	puo.mutation.SetName(s)
+	return puo
+}
+
+// SetPreviewURL sets the "preview_url" field.
+func (puo *ProductUpdateOne) SetPreviewURL(s string) *ProductUpdateOne {
+	puo.mutation.SetPreviewURL(s)
+	return puo
+}
+
+// SetNillablePreviewURL sets the "preview_url" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillablePreviewURL(s *string) *ProductUpdateOne {
+	if s != nil {
+		puo.SetPreviewURL(*s)
+	}
+	return puo
+}
+
+// SetCategories sets the "categories" field.
+func (puo *ProductUpdateOne) SetCategories(s []string) *ProductUpdateOne {
+	puo.mutation.SetCategories(s)
+	return puo
+}
+
+// AppendCategories appends s to the "categories" field.
+func (puo *ProductUpdateOne) AppendCategories(s []string) *ProductUpdateOne {
+	puo.mutation.AppendCategories(s)
 	return puo
 }
 
@@ -285,6 +354,11 @@ func (puo *ProductUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
 	}
+	if v, ok := puo.mutation.PreviewURL(); ok {
+		if err := product.PreviewURLValidator(v); err != nil {
+			return &ValidationError{Name: "preview_url", err: fmt.Errorf(`ent: validator failed for field "Product.preview_url": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.Price(); ok {
 		if err := product.PriceValidator(v); err != nil {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
@@ -324,6 +398,17 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if value, ok := puo.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.PreviewURL(); ok {
+		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Categories(); ok {
+		_spec.SetField(product.FieldCategories, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedCategories(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, product.FieldCategories, value)
+		})
 	}
 	if value, ok := puo.mutation.Price(); ok {
 		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)

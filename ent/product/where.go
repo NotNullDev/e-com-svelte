@@ -58,6 +58,11 @@ func Name(v string) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldName, v))
 }
 
+// PreviewURL applies equality check predicate on the "preview_url" field. It's identical to PreviewURLEQ.
+func PreviewURL(v string) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldPreviewURL, v))
+}
+
 // Price applies equality check predicate on the "price" field. It's identical to PriceEQ.
 func Price(v float64) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldPrice, v))
@@ -126,6 +131,71 @@ func NameEqualFold(v string) predicate.Product {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Product {
 	return predicate.Product(sql.FieldContainsFold(FieldName, v))
+}
+
+// PreviewURLEQ applies the EQ predicate on the "preview_url" field.
+func PreviewURLEQ(v string) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldPreviewURL, v))
+}
+
+// PreviewURLNEQ applies the NEQ predicate on the "preview_url" field.
+func PreviewURLNEQ(v string) predicate.Product {
+	return predicate.Product(sql.FieldNEQ(FieldPreviewURL, v))
+}
+
+// PreviewURLIn applies the In predicate on the "preview_url" field.
+func PreviewURLIn(vs ...string) predicate.Product {
+	return predicate.Product(sql.FieldIn(FieldPreviewURL, vs...))
+}
+
+// PreviewURLNotIn applies the NotIn predicate on the "preview_url" field.
+func PreviewURLNotIn(vs ...string) predicate.Product {
+	return predicate.Product(sql.FieldNotIn(FieldPreviewURL, vs...))
+}
+
+// PreviewURLGT applies the GT predicate on the "preview_url" field.
+func PreviewURLGT(v string) predicate.Product {
+	return predicate.Product(sql.FieldGT(FieldPreviewURL, v))
+}
+
+// PreviewURLGTE applies the GTE predicate on the "preview_url" field.
+func PreviewURLGTE(v string) predicate.Product {
+	return predicate.Product(sql.FieldGTE(FieldPreviewURL, v))
+}
+
+// PreviewURLLT applies the LT predicate on the "preview_url" field.
+func PreviewURLLT(v string) predicate.Product {
+	return predicate.Product(sql.FieldLT(FieldPreviewURL, v))
+}
+
+// PreviewURLLTE applies the LTE predicate on the "preview_url" field.
+func PreviewURLLTE(v string) predicate.Product {
+	return predicate.Product(sql.FieldLTE(FieldPreviewURL, v))
+}
+
+// PreviewURLContains applies the Contains predicate on the "preview_url" field.
+func PreviewURLContains(v string) predicate.Product {
+	return predicate.Product(sql.FieldContains(FieldPreviewURL, v))
+}
+
+// PreviewURLHasPrefix applies the HasPrefix predicate on the "preview_url" field.
+func PreviewURLHasPrefix(v string) predicate.Product {
+	return predicate.Product(sql.FieldHasPrefix(FieldPreviewURL, v))
+}
+
+// PreviewURLHasSuffix applies the HasSuffix predicate on the "preview_url" field.
+func PreviewURLHasSuffix(v string) predicate.Product {
+	return predicate.Product(sql.FieldHasSuffix(FieldPreviewURL, v))
+}
+
+// PreviewURLEqualFold applies the EqualFold predicate on the "preview_url" field.
+func PreviewURLEqualFold(v string) predicate.Product {
+	return predicate.Product(sql.FieldEqualFold(FieldPreviewURL, v))
+}
+
+// PreviewURLContainsFold applies the ContainsFold predicate on the "preview_url" field.
+func PreviewURLContainsFold(v string) predicate.Product {
+	return predicate.Product(sql.FieldContainsFold(FieldPreviewURL, v))
 }
 
 // PriceEQ applies the EQ predicate on the "price" field.

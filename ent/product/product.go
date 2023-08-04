@@ -14,6 +14,10 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldPreviewURL holds the string denoting the preview_url field in the database.
+	FieldPreviewURL = "preview_url"
+	// FieldCategories holds the string denoting the categories field in the database.
+	FieldCategories = "categories"
 	// FieldPrice holds the string denoting the price field in the database.
 	FieldPrice = "price"
 	// EdgeSeller holds the string denoting the seller edge name in mutations.
@@ -33,6 +37,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldPreviewURL,
+	FieldCategories,
 	FieldPrice,
 }
 
@@ -60,6 +66,10 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultPreviewURL holds the default value on creation for the "preview_url" field.
+	DefaultPreviewURL string
+	// PreviewURLValidator is a validator for the "preview_url" field. It is called by the builders before save.
+	PreviewURLValidator func(string) error
 	// PriceValidator is a validator for the "price" field. It is called by the builders before save.
 	PriceValidator func(float64) error
 )
@@ -75,6 +85,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByPreviewURL orders the results by the preview_url field.
+func ByPreviewURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreviewURL, opts...).ToFunc()
 }
 
 // ByPrice orders the results by the price field.

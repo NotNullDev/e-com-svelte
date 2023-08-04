@@ -2,6 +2,8 @@
 	import { browser } from '$app/environment';
 	import { fly } from 'svelte/transition';
 	import '../app.css';
+  import {onMount} from "svelte";
+  import {appStore} from "$lib/appStore";
 
 	let showUserInfo = false;
 	let showCategories = false;
@@ -17,6 +19,31 @@
 			document.documentElement.setAttribute('data-theme', 'dark');
 		}
 	}
+
+  onMount(async () => {
+    fetch("http://localhost:8080/products").then(r => r.json()).then(r => $appStore.products = r);
+    fetch("http://localhost:8080/users").then(r => r.json()).then(r => $appStore.users = r);
+  })
+
+  let search = "";
+  let searchCategory = "All categories";
+  let searchParams: URLSearchParams = new URLSearchParams();
+
+  $: {
+    if (search && search?.trim() !== "") {
+      searchParams.set("query", search);
+    } else {
+      searchParams.delete("query");
+    }
+
+    if (searchCategory && searchCategory !== "All categories") {
+      searchParams.set("category", searchCategory);
+    } else {
+      searchParams.delete("category");
+    }
+
+    searchParams = searchParams
+  }
 </script>
 
 <div class="h-screen overflow-hidden bg-base-300">
@@ -26,16 +53,16 @@
 			<div class="join">
 				<div>
 					<div>
-						<input class="input input-bordered join-item" placeholder="Search for anything" />
+						<input type="search" bind:value={search} class="input input-bordered join-item" placeholder="Search for anything" />
 					</div>
 				</div>
-				<select class="select select-bordered join-item">
+				<select bind:value={searchCategory} class="select select-bordered join-item">
 					<option selected>All categories</option>
 					<option>Sci-fi</option>
 					<option>Drama</option>
 					<option>Action</option>
 				</select>
-				<button class="btn join-item">Search</button>
+				<a href={`/products?${searchParams.toString()}`} class="btn join-item">Search</a>
 			</div>
 			<div class="cursor-pointer relative">
 				<button

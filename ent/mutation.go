@@ -31,18 +31,21 @@ const (
 // ProductMutation represents an operation that mutates the Product nodes in the graph.
 type ProductMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	name          *string
-	price         *float64
-	addprice      *float64
-	clearedFields map[string]struct{}
-	seller        *int
-	clearedseller bool
-	done          bool
-	oldValue      func(context.Context) (*Product, error)
-	predicates    []predicate.Product
+	op               Op
+	typ              string
+	id               *int
+	name             *string
+	preview_url      *string
+	categories       *[]string
+	appendcategories []string
+	price            *float64
+	addprice         *float64
+	clearedFields    map[string]struct{}
+	seller           *int
+	clearedseller    bool
+	done             bool
+	oldValue         func(context.Context) (*Product, error)
+	predicates       []predicate.Product
 }
 
 var _ ent.Mutation = (*ProductMutation)(nil)
@@ -179,6 +182,93 @@ func (m *ProductMutation) ResetName() {
 	m.name = nil
 }
 
+// SetPreviewURL sets the "preview_url" field.
+func (m *ProductMutation) SetPreviewURL(s string) {
+	m.preview_url = &s
+}
+
+// PreviewURL returns the value of the "preview_url" field in the mutation.
+func (m *ProductMutation) PreviewURL() (r string, exists bool) {
+	v := m.preview_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPreviewURL returns the old "preview_url" field's value of the Product entity.
+// If the Product object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProductMutation) OldPreviewURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPreviewURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPreviewURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPreviewURL: %w", err)
+	}
+	return oldValue.PreviewURL, nil
+}
+
+// ResetPreviewURL resets all changes to the "preview_url" field.
+func (m *ProductMutation) ResetPreviewURL() {
+	m.preview_url = nil
+}
+
+// SetCategories sets the "categories" field.
+func (m *ProductMutation) SetCategories(s []string) {
+	m.categories = &s
+	m.appendcategories = nil
+}
+
+// Categories returns the value of the "categories" field in the mutation.
+func (m *ProductMutation) Categories() (r []string, exists bool) {
+	v := m.categories
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategories returns the old "categories" field's value of the Product entity.
+// If the Product object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProductMutation) OldCategories(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategories is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategories requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategories: %w", err)
+	}
+	return oldValue.Categories, nil
+}
+
+// AppendCategories adds s to the "categories" field.
+func (m *ProductMutation) AppendCategories(s []string) {
+	m.appendcategories = append(m.appendcategories, s...)
+}
+
+// AppendedCategories returns the list of values that were appended to the "categories" field in this mutation.
+func (m *ProductMutation) AppendedCategories() ([]string, bool) {
+	if len(m.appendcategories) == 0 {
+		return nil, false
+	}
+	return m.appendcategories, true
+}
+
+// ResetCategories resets all changes to the "categories" field.
+func (m *ProductMutation) ResetCategories() {
+	m.categories = nil
+	m.appendcategories = nil
+}
+
 // SetPrice sets the "price" field.
 func (m *ProductMutation) SetPrice(f float64) {
 	m.price = &f
@@ -308,9 +398,15 @@ func (m *ProductMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProductMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, product.FieldName)
+	}
+	if m.preview_url != nil {
+		fields = append(fields, product.FieldPreviewURL)
+	}
+	if m.categories != nil {
+		fields = append(fields, product.FieldCategories)
 	}
 	if m.price != nil {
 		fields = append(fields, product.FieldPrice)
@@ -325,6 +421,10 @@ func (m *ProductMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case product.FieldName:
 		return m.Name()
+	case product.FieldPreviewURL:
+		return m.PreviewURL()
+	case product.FieldCategories:
+		return m.Categories()
 	case product.FieldPrice:
 		return m.Price()
 	}
@@ -338,6 +438,10 @@ func (m *ProductMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case product.FieldName:
 		return m.OldName(ctx)
+	case product.FieldPreviewURL:
+		return m.OldPreviewURL(ctx)
+	case product.FieldCategories:
+		return m.OldCategories(ctx)
 	case product.FieldPrice:
 		return m.OldPrice(ctx)
 	}
@@ -355,6 +459,20 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case product.FieldPreviewURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPreviewURL(v)
+		return nil
+	case product.FieldCategories:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategories(v)
 		return nil
 	case product.FieldPrice:
 		v, ok := value.(float64)
@@ -429,6 +547,12 @@ func (m *ProductMutation) ResetField(name string) error {
 	switch name {
 	case product.FieldName:
 		m.ResetName()
+		return nil
+	case product.FieldPreviewURL:
+		m.ResetPreviewURL()
+		return nil
+	case product.FieldCategories:
+		m.ResetCategories()
 		return nil
 	case product.FieldPrice:
 		m.ResetPrice()
