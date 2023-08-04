@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.btn {
+    @apply btn-sm;
+}
+
+.input {
+    @apply input-sm;
+}
+
+.select {
+    @apply select-sm;
+}
