@@ -12,9 +12,14 @@ var (
 	ProductsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "price", Type: field.TypeFloat64},
 		{Name: "preview_url", Type: field.TypeString, Default: ""},
 		{Name: "categories", Type: field.TypeJSON},
-		{Name: "price", Type: field.TypeFloat64},
+		{Name: "images", Type: field.TypeJSON},
+		{Name: "images_storage", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "stock", Type: field.TypeInt},
+		{Name: "stock_reserved", Type: field.TypeInt},
 		{Name: "user_products", Type: field.TypeInt, Nullable: true},
 	}
 	// ProductsTable holds the schema information for the "products" table.
@@ -25,7 +30,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_users_products",
-				Columns:    []*schema.Column{ProductsColumns[5]},
+				Columns:    []*schema.Column{ProductsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

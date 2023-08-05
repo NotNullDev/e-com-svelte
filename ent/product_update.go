@@ -35,6 +35,19 @@ func (pu *ProductUpdate) SetName(s string) *ProductUpdate {
 	return pu
 }
 
+// SetPrice sets the "price" field.
+func (pu *ProductUpdate) SetPrice(f float64) *ProductUpdate {
+	pu.mutation.ResetPrice()
+	pu.mutation.SetPrice(f)
+	return pu
+}
+
+// AddPrice adds f to the "price" field.
+func (pu *ProductUpdate) AddPrice(f float64) *ProductUpdate {
+	pu.mutation.AddPrice(f)
+	return pu
+}
+
 // SetPreviewURL sets the "preview_url" field.
 func (pu *ProductUpdate) SetPreviewURL(s string) *ProductUpdate {
 	pu.mutation.SetPreviewURL(s)
@@ -61,16 +74,53 @@ func (pu *ProductUpdate) AppendCategories(s []string) *ProductUpdate {
 	return pu
 }
 
-// SetPrice sets the "price" field.
-func (pu *ProductUpdate) SetPrice(f float64) *ProductUpdate {
-	pu.mutation.ResetPrice()
-	pu.mutation.SetPrice(f)
+// SetImages sets the "images" field.
+func (pu *ProductUpdate) SetImages(s []string) *ProductUpdate {
+	pu.mutation.SetImages(s)
 	return pu
 }
 
-// AddPrice adds f to the "price" field.
-func (pu *ProductUpdate) AddPrice(f float64) *ProductUpdate {
-	pu.mutation.AddPrice(f)
+// AppendImages appends s to the "images" field.
+func (pu *ProductUpdate) AppendImages(s []string) *ProductUpdate {
+	pu.mutation.AppendImages(s)
+	return pu
+}
+
+// SetImagesStorage sets the "imagesStorage" field.
+func (pu *ProductUpdate) SetImagesStorage(s string) *ProductUpdate {
+	pu.mutation.SetImagesStorage(s)
+	return pu
+}
+
+// SetDescription sets the "description" field.
+func (pu *ProductUpdate) SetDescription(s string) *ProductUpdate {
+	pu.mutation.SetDescription(s)
+	return pu
+}
+
+// SetStock sets the "stock" field.
+func (pu *ProductUpdate) SetStock(i int) *ProductUpdate {
+	pu.mutation.ResetStock()
+	pu.mutation.SetStock(i)
+	return pu
+}
+
+// AddStock adds i to the "stock" field.
+func (pu *ProductUpdate) AddStock(i int) *ProductUpdate {
+	pu.mutation.AddStock(i)
+	return pu
+}
+
+// SetStockReserved sets the "stock_reserved" field.
+func (pu *ProductUpdate) SetStockReserved(i int) *ProductUpdate {
+	pu.mutation.ResetStockReserved()
+	pu.mutation.SetStockReserved(i)
+	return pu
+}
+
+// AddStockReserved adds i to the "stock_reserved" field.
+func (pu *ProductUpdate) AddStockReserved(i int) *ProductUpdate {
+	pu.mutation.AddStockReserved(i)
 	return pu
 }
 
@@ -138,14 +188,19 @@ func (pu *ProductUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
 	}
+	if v, ok := pu.mutation.Price(); ok {
+		if err := product.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.PreviewURL(); ok {
 		if err := product.PreviewURLValidator(v); err != nil {
 			return &ValidationError{Name: "preview_url", err: fmt.Errorf(`ent: validator failed for field "Product.preview_url": %w`, err)}
 		}
 	}
-	if v, ok := pu.mutation.Price(); ok {
-		if err := product.PriceValidator(v); err != nil {
-			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+	if v, ok := pu.mutation.Description(); ok {
+		if err := product.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Product.description": %w`, err)}
 		}
 	}
 	return nil
@@ -166,6 +221,12 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 	}
+	if value, ok := pu.mutation.Price(); ok {
+		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
+	}
+	if value, ok := pu.mutation.AddedPrice(); ok {
+		_spec.AddField(product.FieldPrice, field.TypeFloat64, value)
+	}
 	if value, ok := pu.mutation.PreviewURL(); ok {
 		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
 	}
@@ -177,11 +238,31 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, product.FieldCategories, value)
 		})
 	}
-	if value, ok := pu.mutation.Price(); ok {
-		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
+	if value, ok := pu.mutation.Images(); ok {
+		_spec.SetField(product.FieldImages, field.TypeJSON, value)
 	}
-	if value, ok := pu.mutation.AddedPrice(); ok {
-		_spec.AddField(product.FieldPrice, field.TypeFloat64, value)
+	if value, ok := pu.mutation.AppendedImages(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, product.FieldImages, value)
+		})
+	}
+	if value, ok := pu.mutation.ImagesStorage(); ok {
+		_spec.SetField(product.FieldImagesStorage, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Description(); ok {
+		_spec.SetField(product.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Stock(); ok {
+		_spec.SetField(product.FieldStock, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedStock(); ok {
+		_spec.AddField(product.FieldStock, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.StockReserved(); ok {
+		_spec.SetField(product.FieldStockReserved, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedStockReserved(); ok {
+		_spec.AddField(product.FieldStockReserved, field.TypeInt, value)
 	}
 	if pu.mutation.SellerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -238,6 +319,19 @@ func (puo *ProductUpdateOne) SetName(s string) *ProductUpdateOne {
 	return puo
 }
 
+// SetPrice sets the "price" field.
+func (puo *ProductUpdateOne) SetPrice(f float64) *ProductUpdateOne {
+	puo.mutation.ResetPrice()
+	puo.mutation.SetPrice(f)
+	return puo
+}
+
+// AddPrice adds f to the "price" field.
+func (puo *ProductUpdateOne) AddPrice(f float64) *ProductUpdateOne {
+	puo.mutation.AddPrice(f)
+	return puo
+}
+
 // SetPreviewURL sets the "preview_url" field.
 func (puo *ProductUpdateOne) SetPreviewURL(s string) *ProductUpdateOne {
 	puo.mutation.SetPreviewURL(s)
@@ -264,16 +358,53 @@ func (puo *ProductUpdateOne) AppendCategories(s []string) *ProductUpdateOne {
 	return puo
 }
 
-// SetPrice sets the "price" field.
-func (puo *ProductUpdateOne) SetPrice(f float64) *ProductUpdateOne {
-	puo.mutation.ResetPrice()
-	puo.mutation.SetPrice(f)
+// SetImages sets the "images" field.
+func (puo *ProductUpdateOne) SetImages(s []string) *ProductUpdateOne {
+	puo.mutation.SetImages(s)
 	return puo
 }
 
-// AddPrice adds f to the "price" field.
-func (puo *ProductUpdateOne) AddPrice(f float64) *ProductUpdateOne {
-	puo.mutation.AddPrice(f)
+// AppendImages appends s to the "images" field.
+func (puo *ProductUpdateOne) AppendImages(s []string) *ProductUpdateOne {
+	puo.mutation.AppendImages(s)
+	return puo
+}
+
+// SetImagesStorage sets the "imagesStorage" field.
+func (puo *ProductUpdateOne) SetImagesStorage(s string) *ProductUpdateOne {
+	puo.mutation.SetImagesStorage(s)
+	return puo
+}
+
+// SetDescription sets the "description" field.
+func (puo *ProductUpdateOne) SetDescription(s string) *ProductUpdateOne {
+	puo.mutation.SetDescription(s)
+	return puo
+}
+
+// SetStock sets the "stock" field.
+func (puo *ProductUpdateOne) SetStock(i int) *ProductUpdateOne {
+	puo.mutation.ResetStock()
+	puo.mutation.SetStock(i)
+	return puo
+}
+
+// AddStock adds i to the "stock" field.
+func (puo *ProductUpdateOne) AddStock(i int) *ProductUpdateOne {
+	puo.mutation.AddStock(i)
+	return puo
+}
+
+// SetStockReserved sets the "stock_reserved" field.
+func (puo *ProductUpdateOne) SetStockReserved(i int) *ProductUpdateOne {
+	puo.mutation.ResetStockReserved()
+	puo.mutation.SetStockReserved(i)
+	return puo
+}
+
+// AddStockReserved adds i to the "stock_reserved" field.
+func (puo *ProductUpdateOne) AddStockReserved(i int) *ProductUpdateOne {
+	puo.mutation.AddStockReserved(i)
 	return puo
 }
 
@@ -354,14 +485,19 @@ func (puo *ProductUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
 	}
+	if v, ok := puo.mutation.Price(); ok {
+		if err := product.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.PreviewURL(); ok {
 		if err := product.PreviewURLValidator(v); err != nil {
 			return &ValidationError{Name: "preview_url", err: fmt.Errorf(`ent: validator failed for field "Product.preview_url": %w`, err)}
 		}
 	}
-	if v, ok := puo.mutation.Price(); ok {
-		if err := product.PriceValidator(v); err != nil {
-			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+	if v, ok := puo.mutation.Description(); ok {
+		if err := product.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Product.description": %w`, err)}
 		}
 	}
 	return nil
@@ -399,6 +535,12 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	if value, ok := puo.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 	}
+	if value, ok := puo.mutation.Price(); ok {
+		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
+	}
+	if value, ok := puo.mutation.AddedPrice(); ok {
+		_spec.AddField(product.FieldPrice, field.TypeFloat64, value)
+	}
 	if value, ok := puo.mutation.PreviewURL(); ok {
 		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
 	}
@@ -410,11 +552,31 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			sqljson.Append(u, product.FieldCategories, value)
 		})
 	}
-	if value, ok := puo.mutation.Price(); ok {
-		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
+	if value, ok := puo.mutation.Images(); ok {
+		_spec.SetField(product.FieldImages, field.TypeJSON, value)
 	}
-	if value, ok := puo.mutation.AddedPrice(); ok {
-		_spec.AddField(product.FieldPrice, field.TypeFloat64, value)
+	if value, ok := puo.mutation.AppendedImages(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, product.FieldImages, value)
+		})
+	}
+	if value, ok := puo.mutation.ImagesStorage(); ok {
+		_spec.SetField(product.FieldImagesStorage, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Description(); ok {
+		_spec.SetField(product.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Stock(); ok {
+		_spec.SetField(product.FieldStock, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedStock(); ok {
+		_spec.AddField(product.FieldStock, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.StockReserved(); ok {
+		_spec.SetField(product.FieldStockReserved, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedStockReserved(); ok {
+		_spec.AddField(product.FieldStockReserved, field.TypeInt, value)
 	}
 	if puo.mutation.SellerCleared() {
 		edge := &sqlgraph.EdgeSpec{

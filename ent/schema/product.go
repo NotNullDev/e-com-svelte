@@ -15,9 +15,14 @@ type Product struct {
 func (Product) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(),
+		field.Float("price").Positive(),
 		field.String("preview_url").NotEmpty().Default(""),
 		field.Strings("categories"),
-		field.Float("price").Positive(),
+		field.Strings("images"),
+		field.String("imagesStorage"),
+		field.String("description").NotEmpty(),
+		field.Int("stock"),
+		field.Int("stock_reserved"),
 	}
 }
 

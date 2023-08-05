@@ -26,6 +26,12 @@ func (pc *ProductCreate) SetName(s string) *ProductCreate {
 	return pc
 }
 
+// SetPrice sets the "price" field.
+func (pc *ProductCreate) SetPrice(f float64) *ProductCreate {
+	pc.mutation.SetPrice(f)
+	return pc
+}
+
 // SetPreviewURL sets the "preview_url" field.
 func (pc *ProductCreate) SetPreviewURL(s string) *ProductCreate {
 	pc.mutation.SetPreviewURL(s)
@@ -46,9 +52,33 @@ func (pc *ProductCreate) SetCategories(s []string) *ProductCreate {
 	return pc
 }
 
-// SetPrice sets the "price" field.
-func (pc *ProductCreate) SetPrice(f float64) *ProductCreate {
-	pc.mutation.SetPrice(f)
+// SetImages sets the "images" field.
+func (pc *ProductCreate) SetImages(s []string) *ProductCreate {
+	pc.mutation.SetImages(s)
+	return pc
+}
+
+// SetImagesStorage sets the "imagesStorage" field.
+func (pc *ProductCreate) SetImagesStorage(s string) *ProductCreate {
+	pc.mutation.SetImagesStorage(s)
+	return pc
+}
+
+// SetDescription sets the "description" field.
+func (pc *ProductCreate) SetDescription(s string) *ProductCreate {
+	pc.mutation.SetDescription(s)
+	return pc
+}
+
+// SetStock sets the "stock" field.
+func (pc *ProductCreate) SetStock(i int) *ProductCreate {
+	pc.mutation.SetStock(i)
+	return pc
+}
+
+// SetStockReserved sets the "stock_reserved" field.
+func (pc *ProductCreate) SetStockReserved(i int) *ProductCreate {
+	pc.mutation.SetStockReserved(i)
 	return pc
 }
 
@@ -122,6 +152,14 @@ func (pc *ProductCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
 		}
 	}
+	if _, ok := pc.mutation.Price(); !ok {
+		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Product.price"`)}
+	}
+	if v, ok := pc.mutation.Price(); ok {
+		if err := product.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+		}
+	}
 	if _, ok := pc.mutation.PreviewURL(); !ok {
 		return &ValidationError{Name: "preview_url", err: errors.New(`ent: missing required field "Product.preview_url"`)}
 	}
@@ -133,13 +171,25 @@ func (pc *ProductCreate) check() error {
 	if _, ok := pc.mutation.Categories(); !ok {
 		return &ValidationError{Name: "categories", err: errors.New(`ent: missing required field "Product.categories"`)}
 	}
-	if _, ok := pc.mutation.Price(); !ok {
-		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Product.price"`)}
+	if _, ok := pc.mutation.Images(); !ok {
+		return &ValidationError{Name: "images", err: errors.New(`ent: missing required field "Product.images"`)}
 	}
-	if v, ok := pc.mutation.Price(); ok {
-		if err := product.PriceValidator(v); err != nil {
-			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Product.price": %w`, err)}
+	if _, ok := pc.mutation.ImagesStorage(); !ok {
+		return &ValidationError{Name: "imagesStorage", err: errors.New(`ent: missing required field "Product.imagesStorage"`)}
+	}
+	if _, ok := pc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Product.description"`)}
+	}
+	if v, ok := pc.mutation.Description(); ok {
+		if err := product.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Product.description": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.Stock(); !ok {
+		return &ValidationError{Name: "stock", err: errors.New(`ent: missing required field "Product.stock"`)}
+	}
+	if _, ok := pc.mutation.StockReserved(); !ok {
+		return &ValidationError{Name: "stock_reserved", err: errors.New(`ent: missing required field "Product.stock_reserved"`)}
 	}
 	return nil
 }
@@ -171,6 +221,10 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
+	if value, ok := pc.mutation.Price(); ok {
+		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
+		_node.Price = value
+	}
 	if value, ok := pc.mutation.PreviewURL(); ok {
 		_spec.SetField(product.FieldPreviewURL, field.TypeString, value)
 		_node.PreviewURL = value
@@ -179,9 +233,25 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_spec.SetField(product.FieldCategories, field.TypeJSON, value)
 		_node.Categories = value
 	}
-	if value, ok := pc.mutation.Price(); ok {
-		_spec.SetField(product.FieldPrice, field.TypeFloat64, value)
-		_node.Price = value
+	if value, ok := pc.mutation.Images(); ok {
+		_spec.SetField(product.FieldImages, field.TypeJSON, value)
+		_node.Images = value
+	}
+	if value, ok := pc.mutation.ImagesStorage(); ok {
+		_spec.SetField(product.FieldImagesStorage, field.TypeString, value)
+		_node.ImagesStorage = value
+	}
+	if value, ok := pc.mutation.Description(); ok {
+		_spec.SetField(product.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if value, ok := pc.mutation.Stock(); ok {
+		_spec.SetField(product.FieldStock, field.TypeInt, value)
+		_node.Stock = value
+	}
+	if value, ok := pc.mutation.StockReserved(); ok {
+		_spec.SetField(product.FieldStockReserved, field.TypeInt, value)
+		_node.StockReserved = value
 	}
 	if nodes := pc.mutation.SellerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

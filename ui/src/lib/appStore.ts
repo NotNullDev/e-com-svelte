@@ -7,6 +7,11 @@ export type Product = {
   price: number
   preview_url: string
   categories: string[]
+  images: string[],
+  description: string
+  stock: string,
+  stock_reserved: string,
+  seller: string
 }
 
 export type User = {

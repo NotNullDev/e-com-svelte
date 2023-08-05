@@ -20,12 +20,22 @@ type Product struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Price holds the value of the "price" field.
+	Price float64 `json:"price,omitempty"`
 	// PreviewURL holds the value of the "preview_url" field.
 	PreviewURL string `json:"preview_url,omitempty"`
 	// Categories holds the value of the "categories" field.
 	Categories []string `json:"categories,omitempty"`
-	// Price holds the value of the "price" field.
-	Price float64 `json:"price,omitempty"`
+	// Images holds the value of the "images" field.
+	Images []string `json:"images,omitempty"`
+	// ImagesStorage holds the value of the "imagesStorage" field.
+	ImagesStorage string `json:"imagesStorage,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Stock holds the value of the "stock" field.
+	Stock int `json:"stock,omitempty"`
+	// StockReserved holds the value of the "stock_reserved" field.
+	StockReserved int `json:"stock_reserved,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProductQuery when eager-loading is set.
 	Edges         ProductEdges `json:"edges"`
@@ -60,13 +70,13 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case product.FieldCategories:
+		case product.FieldCategories, product.FieldImages:
 			values[i] = new([]byte)
 		case product.FieldPrice:
 			values[i] = new(sql.NullFloat64)
-		case product.FieldID:
+		case product.FieldID, product.FieldStock, product.FieldStockReserved:
 			values[i] = new(sql.NullInt64)
-		case product.FieldName, product.FieldPreviewURL:
+		case product.FieldName, product.FieldPreviewURL, product.FieldImagesStorage, product.FieldDescription:
 			values[i] = new(sql.NullString)
 		case product.ForeignKeys[0]: // user_products
 			values[i] = new(sql.NullInt64)
@@ -97,6 +107,12 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Name = value.String
 			}
+		case product.FieldPrice:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field price", values[i])
+			} else if value.Valid {
+				pr.Price = value.Float64
+			}
 		case product.FieldPreviewURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field preview_url", values[i])
@@ -111,11 +127,37 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field categories: %w", err)
 				}
 			}
-		case product.FieldPrice:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field price", values[i])
+		case product.FieldImages:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field images", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Images); err != nil {
+					return fmt.Errorf("unmarshal field images: %w", err)
+				}
+			}
+		case product.FieldImagesStorage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field imagesStorage", values[i])
 			} else if value.Valid {
-				pr.Price = value.Float64
+				pr.ImagesStorage = value.String
+			}
+		case product.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				pr.Description = value.String
+			}
+		case product.FieldStock:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field stock", values[i])
+			} else if value.Valid {
+				pr.Stock = int(value.Int64)
+			}
+		case product.FieldStockReserved:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field stock_reserved", values[i])
+			} else if value.Valid {
+				pr.StockReserved = int(value.Int64)
 			}
 		case product.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -168,14 +210,29 @@ func (pr *Product) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(pr.Name)
 	builder.WriteString(", ")
+	builder.WriteString("price=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Price))
+	builder.WriteString(", ")
 	builder.WriteString("preview_url=")
 	builder.WriteString(pr.PreviewURL)
 	builder.WriteString(", ")
 	builder.WriteString("categories=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Categories))
 	builder.WriteString(", ")
-	builder.WriteString("price=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Price))
+	builder.WriteString("images=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Images))
+	builder.WriteString(", ")
+	builder.WriteString("imagesStorage=")
+	builder.WriteString(pr.ImagesStorage)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(pr.Description)
+	builder.WriteString(", ")
+	builder.WriteString("stock=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Stock))
+	builder.WriteString(", ")
+	builder.WriteString("stock_reserved=")
+	builder.WriteString(fmt.Sprintf("%v", pr.StockReserved))
 	builder.WriteByte(')')
 	return builder.String()
 }

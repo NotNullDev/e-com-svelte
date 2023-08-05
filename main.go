@@ -4,15 +4,14 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	_ "github.com/lib/pq"
+	"github.com/notnulldev/e-com-svelte/api"
 	"github.com/notnulldev/e-com-svelte/ent"
-	"github.com/notnulldev/e-com-svelte/ent/product"
 	"log"
+	"net/http"
 )
-
-type CreateUserRequest struct {
-	Email string `json:"email"`
-}
 
 func main() {
 	client, err := ent.Open("postgres", "host=localhost port=5432 user=postgres dbname=e-com password=postgres sslmode=disable")
@@ -27,72 +26,25 @@ func main() {
 
 	app := fiber.New()
 	app.Use(cors.New())
+	app.Use(recover.New())
 
-	app.Get("/users", func(ctx *fiber.Ctx) error {
-		all, err := client.User.Query().All(ctx.Context())
-		if err != nil {
-			return err
-		}
-		return ctx.JSON(all)
-	})
+	files := app.Group("/static")
+	files.Use(filesystem.New(filesystem.Config{
+		Root:   http.Dir("./files"),
+		MaxAge: 20,
+		Browse: true,
+	}))
 
-	app.Post("/users", func(ctx *fiber.Ctx) error {
-		var req CreateUserRequest
+	appApi := api.NewAppApi(client)
 
-		err := ctx.BodyParser(&req)
-		if err != nil {
-			return err
-		}
+	usersApi := app.Group("/users")
+	usersApi.Get("/", appApi.GetAllUsers)
+	usersApi.Post("/", appApi.CreateUser)
 
-		save, err := client.User.Create().SetEmail(req.Email).Save(ctx.Context())
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(save)
-	})
-
-	app.Get("/products/:id", func(ctx *fiber.Ctx) error {
-		id, err := ctx.ParamsInt("id", 1)
-		if err != nil {
-			return err
-		}
-
-		all, err := client.Product.Query().Where(product.IDEQ(id)).Only(ctx.Context())
-		if err != nil {
-			return err
-		}
-		return ctx.JSON(all)
-	})
-
-	app.Get("/products", func(ctx *fiber.Ctx) error {
-		all, err := client.Product.Query().All(ctx.Context())
-		if err != nil {
-			return err
-		}
-		return ctx.JSON(all)
-	})
-
-	app.Post("/products", func(ctx *fiber.Ctx) error {
-		var p ent.Product
-
-		err := ctx.BodyParser(&p)
-		if err != nil {
-			return err
-		}
-
-		created, err := client.Product.Create().
-			SetName(p.Name).
-			SetPrice(p.Price).
-			SetPreviewURL(p.PreviewURL).
-			SetCategories(p.Categories).
-			Save(ctx.Context())
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(created)
-	})
+	productsApi := app.Group("/products")
+	productsApi.Get("/:id", appApi.GetProductById)
+	productsApi.Get("/", appApi.GetAllProducts)
+	productsApi.Post("/", appApi.CreateProduct)
 
 	err = app.Listen(":8080")
 	if err != nil {

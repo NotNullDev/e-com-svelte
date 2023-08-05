@@ -17,14 +17,18 @@ func init() {
 	productDescName := productFields[0].Descriptor()
 	// product.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	product.NameValidator = productDescName.Validators[0].(func(string) error)
+	// productDescPrice is the schema descriptor for price field.
+	productDescPrice := productFields[1].Descriptor()
+	// product.PriceValidator is a validator for the "price" field. It is called by the builders before save.
+	product.PriceValidator = productDescPrice.Validators[0].(func(float64) error)
 	// productDescPreviewURL is the schema descriptor for preview_url field.
-	productDescPreviewURL := productFields[1].Descriptor()
+	productDescPreviewURL := productFields[2].Descriptor()
 	// product.DefaultPreviewURL holds the default value on creation for the preview_url field.
 	product.DefaultPreviewURL = productDescPreviewURL.Default.(string)
 	// product.PreviewURLValidator is a validator for the "preview_url" field. It is called by the builders before save.
 	product.PreviewURLValidator = productDescPreviewURL.Validators[0].(func(string) error)
-	// productDescPrice is the schema descriptor for price field.
-	productDescPrice := productFields[3].Descriptor()
-	// product.PriceValidator is a validator for the "price" field. It is called by the builders before save.
-	product.PriceValidator = productDescPrice.Validators[0].(func(float64) error)
+	// productDescDescription is the schema descriptor for description field.
+	productDescDescription := productFields[6].Descriptor()
+	// product.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	product.DescriptionValidator = productDescDescription.Validators[0].(func(string) error)
 }

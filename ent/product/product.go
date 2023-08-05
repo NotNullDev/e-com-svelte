@@ -14,12 +14,22 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldPrice holds the string denoting the price field in the database.
+	FieldPrice = "price"
 	// FieldPreviewURL holds the string denoting the preview_url field in the database.
 	FieldPreviewURL = "preview_url"
 	// FieldCategories holds the string denoting the categories field in the database.
 	FieldCategories = "categories"
-	// FieldPrice holds the string denoting the price field in the database.
-	FieldPrice = "price"
+	// FieldImages holds the string denoting the images field in the database.
+	FieldImages = "images"
+	// FieldImagesStorage holds the string denoting the imagesstorage field in the database.
+	FieldImagesStorage = "images_storage"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldStock holds the string denoting the stock field in the database.
+	FieldStock = "stock"
+	// FieldStockReserved holds the string denoting the stock_reserved field in the database.
+	FieldStockReserved = "stock_reserved"
 	// EdgeSeller holds the string denoting the seller edge name in mutations.
 	EdgeSeller = "seller"
 	// Table holds the table name of the product in the database.
@@ -37,9 +47,14 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldPrice,
 	FieldPreviewURL,
 	FieldCategories,
-	FieldPrice,
+	FieldImages,
+	FieldImagesStorage,
+	FieldDescription,
+	FieldStock,
+	FieldStockReserved,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "products"
@@ -66,12 +81,14 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// PriceValidator is a validator for the "price" field. It is called by the builders before save.
+	PriceValidator func(float64) error
 	// DefaultPreviewURL holds the default value on creation for the "preview_url" field.
 	DefaultPreviewURL string
 	// PreviewURLValidator is a validator for the "preview_url" field. It is called by the builders before save.
 	PreviewURLValidator func(string) error
-	// PriceValidator is a validator for the "price" field. It is called by the builders before save.
-	PriceValidator func(float64) error
+	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	DescriptionValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Product queries.
@@ -87,14 +104,34 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
+// ByPrice orders the results by the price field.
+func ByPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrice, opts...).ToFunc()
+}
+
 // ByPreviewURL orders the results by the preview_url field.
 func ByPreviewURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPreviewURL, opts...).ToFunc()
 }
 
-// ByPrice orders the results by the price field.
-func ByPrice(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPrice, opts...).ToFunc()
+// ByImagesStorage orders the results by the imagesStorage field.
+func ByImagesStorage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImagesStorage, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByStock orders the results by the stock field.
+func ByStock(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStock, opts...).ToFunc()
+}
+
+// ByStockReserved orders the results by the stock_reserved field.
+func ByStockReserved(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStockReserved, opts...).ToFunc()
 }
 
 // BySellerField orders the results by seller field.
