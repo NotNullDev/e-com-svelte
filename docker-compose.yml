@@ -1,0 +1,16 @@
+services:
+  pg:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: e-com
+    volumes:
+      - time-tracker-svelte-pg-data:/var/lib/postgresql/data
+
+
+volumes:
+  time-tracker-svelte-pg-data:
+    name: time-tracker-svelte-pg-data

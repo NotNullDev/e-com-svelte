@@ -12,7 +12,7 @@ import (
 const FILES_FOLDER = "files"
 
 func (api *AppApi) GetProductById(ctx *fiber.Ctx) error {
-	id, err := ctx.ParamsInt("id", 1)
+	id, err := ctx.ParamsInt("id", 0)
 	if err != nil {
 		return err
 	}
@@ -22,6 +22,11 @@ func (api *AppApi) GetProductById(ctx *fiber.Ctx) error {
 		return err
 	}
 	return ctx.JSON(all)
+}
+
+// GetMyProducts TODO
+func (api *AppApi) GetMyProducts(ctx *fiber.Ctx) error {
+	return api.GetAllProducts(ctx)
 }
 
 func (api *AppApi) GetAllProducts(ctx *fiber.Ctx) error {

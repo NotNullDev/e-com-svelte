@@ -1,10 +1,22 @@
 <script lang="ts">
+  import type {PageData} from "./$types";
+  import AdminProductCard from "./admin-product-card.svelte"
 
+  export let data: PageData
+  console.log(data)
 </script>
 
-<div class="flex flex-col h-full mx-auto container">
-    <div class="flex-1 items-center flex flex-col gap-3">
-        <div class="mt-20 text-3xl">You don't have any products yet.</div>
-        <a href="/account/products/create" class="btn btn-lg btn-primary">Create</a>
-    </div>
+<div class="container mx-auto">
+  <div class="flex justify-end p-4">
+    <a href="/account/products/create" class="btn btn-primary">ADD PRODUCT</a>
+  </div>
+  <div class="container mx-auto flex flex-col gap-2">
+    {#each data.myProducts as p}
+      <AdminProductCard product={p} />
+    {/each}
+    {#if data.myProducts.length === 0}
+      <div>No products found</div>
+    {/if}
+  </div>
+  <div>Hah</div>
 </div>

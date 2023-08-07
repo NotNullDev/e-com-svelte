@@ -5,7 +5,9 @@ export const load: PageLoad = async ({url, fetch}) => {
   const id = url.searchParams.get("id");
 
   try {
-    const resp = await fetch(`http://localhost:8080/products/${id}`)
+    const endpoint = `products/${id}`;
+
+    const resp = await fetch(`http://localhost:8080/${endpoint}`);
 
     if (!resp.ok) {
       return {

@@ -2,10 +2,10 @@
   import type {Product} from "$lib/appStore";
 
   export let product: Product;
-  export const href = `/product?id=${product.id}`
+  export const href = ``
 </script>
 
-<a class="bg-base-200 rounded-md h-48 flex" href={href}>
+<a class="bg-base-200 rounded-md h-48 flex" href={`/account/products/edit?id=${product.id}`}>
   <img src={product.preview_url} class="w-[200px]" width="200" height="200" alt="preview" />
   <div class="flex flex-col p-4">
     <div class="text-xl">{product.name}</div>

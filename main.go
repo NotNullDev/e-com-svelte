@@ -42,8 +42,9 @@ func main() {
 	usersApi.Post("/", appApi.CreateUser)
 
 	productsApi := app.Group("/products")
-	productsApi.Get("/:id", appApi.GetProductById)
 	productsApi.Get("/", appApi.GetAllProducts)
+	productsApi.Get("/my", appApi.GetMyProducts)
+	productsApi.Get("/:id", appApi.GetProductById)
 	productsApi.Post("/", appApi.CreateProduct)
 
 	err = app.Listen(":8080")
