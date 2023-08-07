@@ -48,7 +48,7 @@
   $: breaderCrumbs = $page.url.pathname.split("/").filter(p => p !== "");
 </script>
 
-<div class="h-screen bg-base-300">
+<div class="h-screen bg-base-300 flex flex-col">
   <header class="navbar shadow flex flex-col p-4">
     <div class="container mx-auto flex justify-between items-center">
       <div class="flex gap-4 items-center">

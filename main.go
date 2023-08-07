@@ -47,6 +47,7 @@ func main() {
 	productsApi.Get("/:id", appApi.GetProductById)
 	productsApi.Post("/", appApi.CreateProduct)
 	productsApi.Put("/", appApi.UpdateProduct)
+	productsApi.Delete("/:id", appApi.DeleteProduct)
 
 	err = app.Listen(":8080")
 	if err != nil {

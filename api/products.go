@@ -1,10 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/notnulldev/e-com-svelte/ent/product"
 	"log"
+	"os"
 	"path"
 	"strconv"
 )
@@ -22,6 +24,46 @@ func (api *AppApi) GetProductById(ctx *fiber.Ctx) error {
 		return err
 	}
 	return ctx.JSON(all)
+}
+
+func (api *AppApi) DeleteProduct(ctx *fiber.Ctx) error {
+	id, err := ctx.ParamsInt("id")
+	if err != nil {
+		ctx.Response().SetStatusCode(400)
+		err := ctx.JSON(ErrorMessage{
+			Message: fmt.Sprintf("product with ID %d not found", id),
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	productToDelete, err := api.client.Product.Query().Where(product.IDEQ(id)).Only(ctx.Context())
+	if err != nil {
+		return err
+	}
+
+	url := productToDelete.PreviewURL
+	_ = deleteFile(url)
+	for _, f := range productToDelete.Images {
+		_ = deleteFile(f)
+	}
+
+	deleted, err := api.client.Product.Delete().Where(product.IDEQ(id)).Exec(ctx.Context())
+	if err != nil {
+		return err
+	}
+
+	if deleted != 1 {
+		err := ctx.JSON(ErrorMessage{
+			Message: fmt.Sprintf("Failed to delete product with id [%d]", id),
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return ctx.SendStatus(204)
 }
 
 // GetMyProducts TODO
@@ -148,4 +190,8 @@ func (api *AppApi) UpdateProduct(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.JSON(created)
+}
+
+func deleteFile(file string) error {
+	return os.Remove(fmt.Sprintf("./files/%s", file))
 }

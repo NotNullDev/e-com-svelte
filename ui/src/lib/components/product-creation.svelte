@@ -64,7 +64,7 @@
             method: "POST",
             body: form
         })
-        await goto("/products")
+        await goto("/account/products")
     }
 
     async function updateProduct() {
@@ -87,14 +87,46 @@
             method: "PUT",
             body: form
         })
-        await goto("/products")
+        await goto("/account/products")
     }
 
     let selectedFile: File | null = null;
 </script>
 
 <div class="mx-auto container relative">
-    <h1 class="my-5 text-3xl">Product {mode === "create" ? "creation" : "edition"}</h1>
+    <div class="flex justify-between items-center">
+        <h1 class="my-5 text-3xl">Product {mode === "create" ? "creation" : "edition"}</h1>
+        {#if productId}
+            <button class="btn btn-error" on:click={() => {
+                // eslint-disable-next-line no-undef
+                my_modal_2.showModal()
+            }}>delete
+            </button>
+            <dialog id="my_modal_2" class="modal">
+                <form method="dialog" class="modal-box">
+                    <h3 class="font-bold text-lg">Confirm product deletion,</h3>
+                    <p class="py-4">You are going to delete {productData.productName} product. Operation cannot be undone!</p>
+                    <div class="flex gap-2 justify-end">
+                        <button class="modal-action" on:click={() => {
+                          fetch(`http://localhost:8080/products/${productId}`, {
+                                method: "DELETE"
+                            }).then(() => {
+                                goto("/account/products")
+                            })
+                        }}>
+                            <button class="btn btn-ghost">YES, Delete</button>
+                        </button>
+                        <div class="modal-action">
+                            <button  class="btn btn-success">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        {/if}
+    </div>
 
     <form class="flex flex-col gap-2" on:submit|preventDefault>
         <div class="form-control">
