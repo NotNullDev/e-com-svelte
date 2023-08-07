@@ -11,7 +11,8 @@
     productDescription: data.product.description,
     productStock: data.product.stock,
     productPreviewUrl: data.product.preview_url,
-    files: null
 }}
+                 productId={data.product.id}
                  mode="edit"
+                 imagesUrls={data.product.images.map(image => `http://localhost:8080/static/${image}`)}
 />

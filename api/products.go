@@ -89,3 +89,63 @@ func (api *AppApi) CreateProduct(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(created)
 }
+
+func (api *AppApi) UpdateProduct(ctx *fiber.Ctx) error {
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		return err
+	}
+
+	pIdRaw := ctx.FormValue("productId")
+	pId, err := strconv.ParseInt(pIdRaw, 10, 64)
+	if err != nil {
+		log.Println(err.Error())
+		return ctx.JSON(ErrorMessage{Message: "productId is in invalid format"})
+	}
+
+	pName := ctx.FormValue("productName")
+	pDesc := ctx.FormValue("productDescription")
+	pPreviewUrl := ctx.FormValue("productPreviewUrl")
+
+	pPriceRaw := ctx.FormValue("productPrice")
+	pPrice, err := strconv.ParseFloat(pPriceRaw, 64)
+	if err != nil {
+		log.Println(err.Error())
+		return ctx.JSON(ErrorMessage{Message: "productPrice is in invalid format"})
+	}
+
+	pStockRaw := ctx.FormValue("productStock")
+	pStock, err := strconv.ParseInt(pStockRaw, 10, 32)
+	if err != nil {
+		log.Println(err.Error())
+		return ctx.JSON(ErrorMessage{Message: "productPrice is in invalid format"})
+	}
+
+	var filePaths []string
+
+	for _, file := range form.File["files"] {
+		fName := uuid.NewString()
+		// save only new files: todo: optimize
+		_ = ctx.SaveFile(file, path.Join(FILES_FOLDER, fName))
+		filePaths = append(filePaths, fName)
+	}
+
+	created, err := api.client.Product.Update().
+		Where(product.IDEQ(int(pId))).
+		SetName(pName).
+		SetPrice(pPrice).
+		SetPreviewURL(pPreviewUrl).
+		SetDescription(pDesc).
+		SetImages(filePaths).
+		SetImagesStorage("local").
+		SetStock(int(pStock)).
+		SetStockReserved(0).
+		SetCategories([]string{}).
+		Save(ctx.Context())
+
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(created)
+}
