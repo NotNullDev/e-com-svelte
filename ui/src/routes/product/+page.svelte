@@ -1,8 +1,27 @@
 <script lang="ts">
   import type { PageData } from "./$types"
+  import {appStore} from "$lib/appStore";
 
   export let data: PageData;
   let amount = 1;
+
+  function addToCart() {
+    if (!data.product) return;
+    const found = $appStore.cart.products.find(p => p.product === data.product);
+
+    if (found) {
+        found.quantity += amount;
+        $appStore.cart.products = $appStore.cart.products;
+        return;
+    }
+
+    $appStore.cart.products.push({
+      product: data.product,
+      quantity: amount
+    })
+    $appStore.cart.products = $appStore.cart.products;
+  }
+
 </script>
 
 {#if data.product}
@@ -30,7 +49,7 @@
           <label>
             <input type="number" class="input input-bordered w-[100px]" bind:value={amount} />
           </label>
-          <button class="btn btn-primary">Add to cart</button>
+          <button class="btn btn-primary" on:click={addToCart}>Add to cart</button>
         </div>
       </div>
 
@@ -38,7 +57,7 @@
 
     <div class="bg-base-200 m-4 p-4 rounded-md">
       <div>Real description starts here</div>
-      <div class="p-4">{data.product.description}</div>
+      <pre class="p-4">{data.product.description}</pre>
     </div>
 
   </div>

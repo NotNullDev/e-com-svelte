@@ -78,23 +78,32 @@
         <a href={`/products?${searchParams.toString()}`} class="btn join-item">Search</a>
       </div>
       <div class="flex gap-4">
+
+          <a tabindex="0" class="btn btn-ghost btn-circle" href="/products/saved">
+              <div class="indicator">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  <span class="badge badge-sm indicator-item">{$appStore.saved.products.length}</span>
+              </div>
+          </a>
+
         <div class="dropdown dropdown-end">
-          <button tabindex="0" class="btn btn-ghost btn-circle">
+            <button tabindex="0" class="btn btn-ghost btn-circle">
             <div class="indicator">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                    stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
-              <span class="badge badge-sm indicator-item">8</span>
+              <span class="badge badge-sm indicator-item">{$appStore.cart.products.map(p => p.quantity).reduce((p,n) => p + n, 0)}</span>
             </div>
           </button>
+
           <button tabindex="0" class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
             <div class="card-body">
-              <span class="font-bold text-lg">8 Items</span>
-              <span class="text-info">Subtotal: $999</span>
+              <span class="font-bold text-lg">{$appStore.cart.products.map(p => p.quantity).reduce((p,n) => p + n, 0)} Items</span>
+              <span class="text-info">Subtotal: ${$appStore.cart.products.map(p => p.product.price * p.quantity).reduce((p,n) => p + n, 0)}</span>
               <div class="card-actions">
-                <button class="btn btn-primary btn-block">View cart</button>
+                <a href="/cart" class="btn btn-primary btn-block">View cart</a>
               </div>
             </div>
           </button>
